@@ -66,10 +66,7 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
         days_peak_original = days_peak['Total_w_Police']
         
     before_peak_day = days_peak_original - 2
-    if days_peak_original + 2 <= len(cumulative_df):
-        after_peak_day = days_peak_original + 2
-    else:
-        after_peak_day = days_peak_original
+    after_peak_day = days_peak_original + 2
     active_total_40_days = I[columns].iloc[40]
     
     cum_total_40_days = cumulative_df[columns].iloc[40]
@@ -87,8 +84,6 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
     cum_at_peak_rate = cum_at_peak/new_sizes
         
     #after peak
-    print("%f" % after_peak_day)
-    print("%f" % len(cumulative_df))
     cum_after = cumulative_df[columns].iloc[after_peak_day]
     cum_rate_after = cum_after/new_sizes
     active_rate_after = I[columns].iloc[after_peak_day]/new_sizes

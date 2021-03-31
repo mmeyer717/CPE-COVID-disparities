@@ -105,10 +105,8 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
     
     k1, k2 = prison_rate_build(
         Group_Size, prison_peak_date, white_prison_i, black_prison_i, prison_peak_rate)
-    #print(f'original k1, k2: {k1}, {k2}')
     # for use in shrinking jail size 
-    jail_release_shrink_by_day = jail_release_shrink/(jail_release_date - SIP_DATE)
-    #print(f'jail release shrink by day: {jail_release_shrink_by_day}')
+    jail_release_shrink_by_day = jail_release_shrink/(SIP_DATE - jail_release_date)
     orig_prison_pop_white = Group_Size[white_prison_i]
     orig_prison_pop_black = Group_Size[black_prison_i]
     JAIL_OF_CORRECTIONS = 27296/(27296+1704) # fraction of jail/prison releases that are jail releases;
@@ -121,8 +119,7 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
         if i == SIP_DATE - 1:
             lambda_matrix = contact_matrix2 * post_sip_transmission_rate
         
-        if i >= SIP_DATE and i <= jail_release_date - 1: #if date after SIP and before/on final jail release date
-            #print(f'reduction factor day {i}: {1-(JAIL_OF_CORRECTIONS*jail_release_shrink_by_day*days_since_lockdown)}')
+        if i >= SIP_DATE & i <= jail_release_date - 1: #if date after SIP and before/on final jail release date
             Group_Size[white_prison_i] = orig_prison_pop_white*(1-(
                 JAIL_OF_CORRECTIONS*jail_release_shrink_by_day*days_since_lockdown))
             Group_Size[black_prison_i] = orig_prison_pop_black*(1-(
@@ -130,7 +127,6 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
 
             k1, k2 = prison_rate_build(Group_Size, prison_peak_date, white_prison_i,
                                        black_prison_i, prison_peak_rate)
-            #print(f'k1 and k2 on day {i}: {k1}, {k2}')
             days_since_lockdown += 1
             
         # multiplying k*k contact matrix * k*1 vetor of proportion of group infected
@@ -151,14 +147,14 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
 
         S_t = S_t + dSdt   
         I_t = I_t + dIdt
-       # print(f'{i}: {I_t}')
         R_t = R_t + dRdt
         
-        if i <= prison_peak_date - 1:
+        if i <= prison_peak_date:
             I_t[white_prison_i] = np.exp(i*k1)
             I_t[black_prison_i] = np.exp(i*k2)
             S_t[white_prison_i] = Group_Size[white_prison_i] - np.exp(i*k1)
             S_t[black_prison_i] = Group_Size[black_prison_i] - np.exp(i*k2)
+            # Should this be S_t?
         
         susceptible_rows.append(S_t)
         infected_rows.append(I_t)
@@ -227,18 +223,18 @@ def build_model_p2(group_size_data, TIME, contact_matrix1, contact_matrix2, para
         I_t = I_t + dIdt
         R_t = R_t + dRdt
         
-        if i <= params.sip_start_date - 1:
-            I_t[white_prison_i] = np.exp(i*k1)
-            I_t[black_prison_i] = np.exp(i*k2)
-            S_t[white_prison_i] = Group_Size[white_prison_i] - np.exp(i*k1)
-            S_t[black_prison_i] = Group_Size[black_prison_i] - np.exp(i*k2)
-        else:
-            print(f'{i}: now reducing prison rates')
-            # checked below, and numbers look correct
-            I_t[white_prison_i] = (policy2_params.prison_sip_i_white + policy2_params.jail_sip_i_white)*Group_Size[white_prison_i]
-            I_t[black_prison_i] = (policy2_params.prison_sip_i_black + policy2_params.jail_sip_i_black)*Group_Size[black_prison_i]
-            S_t[white_prison_i] = Group_Size[white_prison_i] - (policy2_params.prison_sip_i_white + policy2_params.jail_sip_i_white)*Group_Size[white_prison_i]
-            S_t[black_prison_i] = Group_Size[black_prison_i] - (policy2_params.prison_sip_i_black + policy2_params.jail_sip_i_black)*Group_Size[black_prison_i]
+        if i <= params.prison_peak_date:
+            if i <= params.sip_start_date - 1:
+                I_t[white_prison_i] = np.exp(i*k1)
+                I_t[black_prison_i] = np.exp(i*k2)
+                S_t[white_prison_i] = Group_Size[white_prison_i] - np.exp(i*k1)
+                S_t[black_prison_i] = Group_Size[black_prison_i] - np.exp(i*k2)
+            else:
+                print(f'{i}: now reducing prison rates')
+                I_t[white_prison_i] = (policy2_params.prison_sip_i_white + policy2_params.jail_sip_i_white)*Group_Size[white_prison_i]
+                I_t[black_prison_i] = (policy2_params.prison_sip_i_black + policy2_params.jail_sip_i_black)*Group_Size[black_prison_i]
+                S_t[white_prison_i] = Group_Size[white_prison_i] - (policy2_params.prison_sip_i_white + policy2_params.jail_sip_i_white)*Group_Size[white_prison_i]
+                S_t[black_prison_i] = Group_Size[black_prison_i] - (policy2_params.prison_sip_i_black + policy2_params.jail_sip_i_black)*Group_Size[black_prison_i]
         
         susceptible_rows.append(S_t)
         infected_rows.append(I_t)
