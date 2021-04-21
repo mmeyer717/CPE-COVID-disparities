@@ -320,6 +320,7 @@ def fill_in_prison_contacts(m, my_group_df, is_post=False):
     # These are in the spread sheet but don't know where they are used
     # white_weekly_release_rate = WHITE_RELEASE_RATE * 7
     # black_weekly_release_rate = BLACK_RELEASE_RATE * 7
+    # rolling window of past 10 days
     white_release_rate_delay = WHITE_RELEASE_RATE * DAYS_UNTIL_RECOVERY * 0.5  # don't understand the 0.5 this is B77
     black_release_rate_delay = BLACK_RELEASE_RATE * DAYS_UNTIL_RECOVERY * 0.5
     if not is_post:

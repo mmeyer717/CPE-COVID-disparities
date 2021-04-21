@@ -66,7 +66,11 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
         days_peak_original = days_peak['Total_w_Police']
         
     before_peak_day = days_peak_original - 2
-    after_peak_day = days_peak_original + 2
+    if days_peak_original + 2 <= len(cumulative_df):
+        after_peak_day = days_peak_original + 2
+    else: 
+        print("peak day happens less than two days before day 120")
+        after_peak_day = days_peak_original
     active_total_40_days = I[columns].iloc[40]
     
     cum_total_40_days = cumulative_df[columns].iloc[40]

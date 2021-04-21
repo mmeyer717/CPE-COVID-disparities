@@ -93,6 +93,7 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
     susceptible_rows = []
     infected_rows = []
     recovered_rows = []
+    prison_infection = {"Black":[], "White":[]}
     lambda_matrix = contact_matrix1 * transmission_rate
  
     S_t, I_t, R_t = initial_sizes
@@ -106,7 +107,7 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
     k1, k2 = prison_rate_build(
         Group_Size, prison_peak_date, white_prison_i, black_prison_i, prison_peak_rate)
     # for use in shrinking jail size 
-    jail_release_shrink_by_day = jail_release_shrink/(SIP_DATE - jail_release_date)
+    jail_release_shrink_by_day = jail_release_shrink/(jail_release_date - SIP_DATE)
     orig_prison_pop_white = Group_Size[white_prison_i]
     orig_prison_pop_black = Group_Size[black_prison_i]
     JAIL_OF_CORRECTIONS = 27296/(27296+1704) # fraction of jail/prison releases that are jail releases;
@@ -119,12 +120,12 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
         if i == SIP_DATE - 1:
             lambda_matrix = contact_matrix2 * post_sip_transmission_rate
         
-        if i >= SIP_DATE & i <= jail_release_date - 1: #if date after SIP and before/on final jail release date
+        if i >= SIP_DATE and i <= jail_release_date - 1: #if date after SIP and before/on final jail release date
             Group_Size[white_prison_i] = orig_prison_pop_white*(1-(
                 JAIL_OF_CORRECTIONS*jail_release_shrink_by_day*days_since_lockdown))
             Group_Size[black_prison_i] = orig_prison_pop_black*(1-(
                 JAIL_OF_CORRECTIONS*jail_release_shrink_by_day*days_since_lockdown))
-
+            #don't recalculate k1, k2
             k1, k2 = prison_rate_build(Group_Size, prison_peak_date, white_prison_i,
                                        black_prison_i, prison_peak_rate)
             days_since_lockdown += 1
@@ -148,14 +149,20 @@ def build_model_p1(group_size_data, TIME, SIP_DATE, contact_matrix1, contact_mat
         S_t = S_t + dSdt   
         I_t = I_t + dIdt
         R_t = R_t + dRdt
-        
+        # I just copied and pasted the code from no lever; no modifications yet
         if i <= prison_peak_date:
-            I_t[white_prison_i] = np.exp(i*k1)
-            I_t[black_prison_i] = np.exp(i*k2)
+            prison_infection["White"].append(np.exp(i*k1)) # number of white prisoners newly infected on day i
+            prison_infection["Black"].append(np.exp(i*k2)) # number of black prisoners newly infected on day i
             S_t[white_prison_i] = Group_Size[white_prison_i] - np.exp(i*k1)
             S_t[black_prison_i] = Group_Size[black_prison_i] - np.exp(i*k2)
-            # Should this be S_t?
-        
+        elif i > prison_peak_date:
+            prison_infection["White"].append(prison_infection["White"][-1])
+            prison_infection["Black"].append(prison_infection["Black"][-1])
+        if i > 9: # make sure only the last ten days are kept in the infections lists
+            prison_infection["White"].pop(0) 
+            prison_infection["Black"].pop(0)
+        I_t[white_prison_i] = sum(prison_infection["White"])
+        I_t[black_prison_i] = sum(prison_infection["Black"])   
         susceptible_rows.append(S_t)
         infected_rows.append(I_t)
         recovered_rows.append(R_t)
@@ -305,6 +312,8 @@ def build_model(group_size_data, TIME, contact_matrix1, contact_matrix2,
     susceptible_rows = []
     infected_rows = []
     recovered_rows = []
+    # I use the below dictionary to keep track of daily infections in prison by race
+    prison_infection = {"Black":[], "White":[]}
     lambda_matrix = contact_matrix1 * params.transmission_rate
  
     S_t, I_t, R_t = initial_sizes
@@ -339,7 +348,7 @@ def build_model(group_size_data, TIME, contact_matrix1, contact_matrix2,
             I_14 = delta_i[i-14]
         
         dSdt = - contacts 
-        dIdt = contacts - recovery_rates * I_14       
+        dIdt = contacts - recovery_rates * I_14 
         dRdt = recovery_rates * I_14
 
         S_t = S_t + dSdt   
@@ -347,11 +356,19 @@ def build_model(group_size_data, TIME, contact_matrix1, contact_matrix2,
         R_t = R_t + dRdt
         
         if i <= params.prison_peak_date:
-            I_t[white_prison_i] = np.exp(i*k1)
-            I_t[black_prison_i] = np.exp(i*k2)
+            #KEEP TRACK OF RELEASES
+            prison_infection["White"].append(np.exp(i*k1)) # number of white prisoners newly infected on day i
+            prison_infection["Black"].append(np.exp(i*k2)) # number of black prisoners newly infected on day i
             S_t[white_prison_i] = Group_Size[white_prison_i] - np.exp(i*k1)
             S_t[black_prison_i] = Group_Size[black_prison_i] - np.exp(i*k2)
-          
+        elif i > params.prison_peak_date:
+            prison_infection["White"].append(prison_infection["White"][-1])
+            prison_infection["Black"].append(prison_infection["Black"][-1])
+        if i > 9: # make sure only the last ten days are kept in the infections lists
+            prison_infection["White"].pop(0) 
+            prison_infection["Black"].pop(0)
+        I_t[white_prison_i] = sum(prison_infection["White"])
+        I_t[black_prison_i] = sum(prison_infection["Black"])
         susceptible_rows.append(S_t)
         infected_rows.append(I_t)
         recovered_rows.append(R_t)
