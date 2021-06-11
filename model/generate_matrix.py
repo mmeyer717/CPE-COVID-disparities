@@ -139,7 +139,7 @@ white_residential_hours = group_df[(group_df['Location'] == 'At_Home') & (group_
     'Race_Home_Hours'].sum()
 black_residential_hours = group_df[(group_df['Location'] == 'At_Home') & (group_df['Race'] == 'Black')][
     'Race_Home_Hours'].sum()
-print(f"resident hours --- white: {white_residential_hours}, black: {black_residential_hours}")
+
 
 print(f"saving group size matrix to {GROUP_SIZE_MATRIX}")
 group_df_to_save = group_df.groupby('Group_Name').agg(
@@ -148,7 +148,7 @@ group_df_to_save['Population_Size'] = group_df_to_save * SYNTHETIC_CITY_SIZE
 init_infections = 1/group_df_to_save.loc['Black_Forced_Labour', 'Population_Size']
 group_df_to_save['Initial_Infection_Rate'] = init_infections
 group_df_to_save['Initial_Infections'] = group_df_to_save['Population_Size'] * group_df_to_save['Initial_Infection_Rate']
-print(init_infections)
+
 #++++++++++++++++++++++++++++++++++++++++++++
 # Contact Matrices
 #++++++++++++++++++++++++++++++++++++++++++++
@@ -165,9 +165,7 @@ DAYS_UNTIL_RECOVERY = 21
 social_distancing_contact_rate = SOCIAL_DISTANCING_INFECTION_RATE / (TRANSMISSION_RATE * DAYS_UNTIL_RECOVERY)
 no_social_distancing_contact_rate = NO_SOCIAL_DISTANCING_INFECTION_RATE / (TRANSMISSION_RATE * DAYS_UNTIL_RECOVERY)
 occupation_infection_number = no_social_distancing_contact_rate
-print(social_distancing_contact_rate)
-print(no_social_distancing_contact_rate)
-print(occupation_infection_number)
+
 # number of people this group contacts when at work
 # this will change in the post social distancing world.
 group_df['labour_type_contact_rate'] = group_df['Labour_Type'].apply(
@@ -222,14 +220,14 @@ contact_matrix_pre_sip = fill_in_essential_working_groups(
 
 white_of_black_white_police = WHITE_OF_POLICE / (WHITE_OF_POLICE + BLACK_OF_POLICE)
 black_of_black_white_police = BLACK_OF_POLICE / (WHITE_OF_POLICE + BLACK_OF_POLICE)
-print(f'white of black white police {white_of_black_white_police} black: {black_of_black_white_police}')
+
 
 POLICE_STOP_WHITE = 0.6895951865  # D16
 POLICE_STOP_BLACK = 0.2751037807
 TOTAL_OFFICER_STOPS = 10
 
 police_contacts_with_whites = TOTAL_OFFICER_STOPS * POLICE_STOP_WHITE
-print(f'white --> police {police_contacts_with_whites}')
+
 police_contacts_with_blacks = TOTAL_OFFICER_STOPS * POLICE_STOP_BLACK
 # police contact in white neighborhoods
 # police --> white
@@ -244,7 +242,7 @@ black_police_contacts_with_whites = police_contacts_with_whites * black_of_black
 WHITE_CONTACT_ALL_POLICE = 0.01954671257 #B68
 whites_contact_with_white_police = WHITE_CONTACT_ALL_POLICE * white_of_black_white_police
 whites_contact_with_black_police = WHITE_CONTACT_ALL_POLICE * black_of_black_white_police
-print(f' white --> police_contact {whites_contact_with_white_police} + {whites_contact_with_black_police} = {whites_contact_with_white_police + whites_contact_with_black_police}')
+
 # police contacts in black neighborhoods
 # police --> black
 white_police_contacts_with_blacks = police_contacts_with_blacks * white_of_black_white_police
@@ -269,7 +267,7 @@ def calc_race_neighborhood(my_group_df):
 
 MAX_OCCUPATION_INFECTION_NUMBER = 17
 MIN_OCCUPATION_INFECTION_NUMBER = 10
-print(group_df.loc['Black_Police_At_Home', 'Home_Hours'])
+
 
 def fill_in_police_job_contacts(m, g_df):
     w_neighborhood, b_neighborhood = calc_race_neighborhood(group_df)
@@ -570,7 +568,7 @@ def write_all_matrices(BASE_PATH):
     lever_1_dir = os.path.join(BASE_PATH, LEVER_1_FOLDER)
     lever_2_dir = os.path.join(BASE_PATH, LEVER_2_FOLDER)
     if not os.path.exists(BASE_PATH):
-        print(BASE_PATH)
+
         os.mkdir(BASE_PATH)
         
     if not os.path.exists(lever_1_dir):

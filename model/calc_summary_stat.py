@@ -45,16 +45,25 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
     
     I["Total_Residents"] = I['Black'] + I['Black_Forced_Labour'] + I['White'] + I['White_Forced_Labour']
     I['Total_w_Police'] = I["Total_Residents"] + I["Black_Police"] + I["White_Police"]
+    
+    I['Black_All'] = I['Black'] + I['Black_Forced_Labour']
+    I['White_All'] = I['White'] + I['White_Forced_Labour']
+    
         
     #Add new columns to susceptible
     S["Total_Residents"] = S['Black'] + S['Black_Forced_Labour'] + S['White'] + S['White_Forced_Labour']
     S['Total_w_Police'] = S["Total_Residents"] + S["Black_Police"] + S["White_Police"]
     
+    S['Black_All'] =  S['Black'] + S['Black_Forced_Labour']
+    S['White_All'] =  S['White'] + S['White_Forced_Labour']
     columns = ['Black', 'Black_Forced_Labour','White', 'White_Forced_Labour',
-        'Total_Residents', 'Total_w_Police']
+        'Total_Residents', 'Total_w_Police', 'Black_All', 'White_All']
+ 
+  
+    pop_size['Black_All'] = pop_size['Black'] + pop_size['Black_Forced_Labour']
+    pop_size['White_All'] = pop_size['White'] + pop_size['White_Forced_Labour']
     
-    new_sizes = pop_size[['Black', 'Black_Forced_Labour','White', 'White_Forced_Labour',
-        'Total_Residents', 'Total_w_Police']]
+    new_sizes = pop_size[columns]
        
     cumulative_df = pd.DataFrame()
     for c in columns:
@@ -101,12 +110,13 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
                         'days_peak': days_peak,
                         'peak_active_infected_rate': peak_infected.values/new_sizes,                       
                         'cumulative_peak': np.round(cum_at_peak),
-                        'cumulative_rate_peak': cum_at_peak_rate,
-                        'active_rate_after_peak': active_rate_after,
-                        'cumulative_after_peak': cum_after,
-                        'cumulative_rate_after_peak': cum_rate_after,
-                        'cumulative_infected_120_days': np.round(cum_total_100_days),
-                        'cumulative_rate_120_days': np.round(cum_total_100_days/new_sizes)
+                        'cumulative_rate_peak': cum_at_peak_rate
+                        
+#                         'active_rate_after_peak': active_rate_after,
+#                         'cumulative_after_peak': cum_after,
+#                         'cumulative_rate_after_peak': cum_rate_after,
+#                         'cumulative_infected_120_days': np.round(cum_total_100_days),
+#                         'cumulative_rate_120_days': np.round(cum_total_100_days/new_sizes)
                      })
     df['model_name'] = name
     active_df = I[columns].add_prefix('active_')
