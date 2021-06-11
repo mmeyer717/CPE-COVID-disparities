@@ -10,6 +10,7 @@ import modify_contact as mod
 import model_params_class as mp
 import calc_summary_stat as summ
 
+
 """Build model for policy intervention 1
 This function is the same as build_model in build_models.py with the exception 
 of the additional parameter, group_size_p1. This is the group_df_p1 data.frame
