@@ -156,8 +156,8 @@ def build_model(group_size_data, TIME, contact_matrix1, contact_matrix2,
     
     max_prison_infections_white = Group_Size[white_prison_i] * params.prison_infection_rate
     max_prison_infections_black = Group_Size[black_prison_i] * params.prison_infection_rate
-    
-    k1, k2 = prison_rate_build(
+    print(f'Prison infection rate {params.prison_infection_rate}')
+    k_white, k_black = prison_rate_build(
         Group_Size, params.prison_peak_date, 
         white_prison_i, black_prison_i,params.prison_infection_rate)
   
@@ -192,28 +192,18 @@ def build_model(group_size_data, TIME, contact_matrix1, contact_matrix2,
             prison_infection["Black"].pop(0)
         if i <= params.prison_peak_date:
             #KEEP TRACK OF RELEASES
-            prison_infection["White"].append(np.exp(i*k1)) # number of white prisoners newly infected on day i
-            prison_infection["Black"].append(np.exp(i*k2)) # number of black prisoners newly infected on day i
-            if sum(prison_infection["White"]) > max_prison_infections_white:
-                print(f'prison rate exceeded at time {i}')
-                S_t[white_prison_i] = Group_Size[white_prison_i] - max_prison_infections_white
-                S_t[black_prison_i] = Group_Size[black_prison_i] - max_prison_infections_black
-                I_t[white_prison_i] = max_prison_infections_white
-                I_t[black_prison_i] = max_prison_infections_black
-            else:
-                S_t[white_prison_i] = Group_Size[white_prison_i] - np.exp(i*k1)
-                S_t[black_prison_i] = Group_Size[black_prison_i] - np.exp(i*k2)
-                I_t[white_prison_i] = sum(prison_infection["White"])
-                I_t[black_prison_i] = sum(prison_infection["Black"])
+            prison_infection["White"].append(np.exp(i*k_white)) # number of white prisoners newly infected on day i
+            prison_infection["Black"].append(np.exp(i*k_black)) # number of black prisoners newly infected on day i
         #TODO Simplify code path 
         elif i > params.prison_peak_date:
             prison_infection["White"].append(prison_infection["White"][-1])
             prison_infection["Black"].append(prison_infection["Black"][-1])
-            #force infection rate to just be peak infection rate. 
-            S_t[white_prison_i] = Group_Size[white_prison_i] - max_prison_infections_white
-            S_t[black_prison_i] = Group_Size[black_prison_i] - max_prison_infections_black
-            I_t[white_prison_i] = max_prison_infections_white
-            I_t[black_prison_i] = max_prison_infections_black
+
+        S_t[white_prison_i] = Group_Size[white_prison_i] - sum(prison_infection["White"])/10
+        S_t[black_prison_i] = Group_Size[black_prison_i] - sum(prison_infection["Black"])/10
+        I_t[white_prison_i] = sum(prison_infection["White"])/10
+        I_t[black_prison_i] = sum(prison_infection["Black"])/10
+
        
         susceptible_rows.append(S_t)
         infected_rows.append(I_t)

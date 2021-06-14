@@ -60,8 +60,8 @@ group_sizes['White_Police'] = POLICE_OF_WHITE * WHITE_OF_ALL
 group_sizes['Black_Police'] = POLICE_OF_BLACK * BLACK_OF_ALL
 
 # INCARCERATION
-# These are pull from the calculations spread sheet I don't know if they are write and
-# I have not used the full calculations
+# These are pull from the calculations spread sheet I don't know if they are right and
+# I have not entered in the full calculations
 
 INCARCE_OF_ALL = 0.0063  # Group Size Calculations B32
 WHITE_OF_INCARCE = 0.5284967924  # Calculations J31 #proportion of prisoners who are white
@@ -314,20 +314,25 @@ contact_matrix_pre_sip = fill_in_police_job_contacts(contact_matrix_pre_sip, gro
 WHITE_RELEASE_RATE = 0.00007130892426
 BLACK_RELEASE_RATE = 0.0002163545656
 
+DAYS_OF_INFECTION = 10
 def fill_in_prison_contacts(m, my_group_df, is_post=False):
     # These are in the spread sheet but don't know where they are used
     # white_weekly_release_rate = WHITE_RELEASE_RATE * 7
     # black_weekly_release_rate = BLACK_RELEASE_RATE * 7
     # rolling window of past 10 days
-    white_release_rate_delay = WHITE_RELEASE_RATE * DAYS_UNTIL_RECOVERY * 0.5  # don't understand the 0.5 this is B77
-    black_release_rate_delay = BLACK_RELEASE_RATE * DAYS_UNTIL_RECOVERY * 0.5
+    # don't understand the 0.5 this is B77
+    white_release_rate_delay = WHITE_RELEASE_RATE  
+    black_release_rate_delay = BLACK_RELEASE_RATE 
+    
     if not is_post:
-        white_prison = white_release_rate_delay * no_social_distancing_contact_rate
+        # this is (likelihood that someone in your community was released from prison today) * (number of people you contact) * 10 because we care about anyone realsed in the last ten days. 
+        # In the model itself, we use the average infection rate of the last ten days. 
+        white_prison = white_release_rate_delay * no_social_distancing_contact_rate * DAYS_OF_INFECTION
 
-        black_prison = black_release_rate_delay * no_social_distancing_contact_rate
+        black_prison = black_release_rate_delay * no_social_distancing_contact_rate * DAYS_OF_INFECTION
     else:
-        white_prison = white_release_rate_delay * social_distancing_contact_rate
-        black_prison = black_release_rate_delay * social_distancing_contact_rate
+        white_prison = white_release_rate_delay * social_distancing_contact_rate * DAYS_OF_INFECTION
+        black_prison = black_release_rate_delay * social_distancing_contact_rate * DAYS_OF_INFECTION
 
     for i in my_group_df.index.values:
         if my_group_df.loc[i, 'Location'] == 'At_Home':

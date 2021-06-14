@@ -67,7 +67,7 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
        
     cumulative_df = pd.DataFrame()
     for c in columns:
-        cumulative_df[c] = np.round(pop_size[c] - S[c])
+        cumulative_df[c] = np.round(pop_size[c] - S[c], 2)
     
     peak_infected = I[columns].max()
     days_peak = I[columns].idxmax()
@@ -110,13 +110,12 @@ def calculate_peak_infections(S, I, pop_size, name, base_dir, days_peak_original
                         'days_peak': days_peak,
                         'peak_active_infected_rate': peak_infected.values/new_sizes,                       
                         'cumulative_peak': np.round(cum_at_peak),
-                        'cumulative_rate_peak': cum_at_peak_rate
-                        
-#                         'active_rate_after_peak': active_rate_after,
-#                         'cumulative_after_peak': cum_after,
-#                         'cumulative_rate_after_peak': cum_rate_after,
-#                         'cumulative_infected_120_days': np.round(cum_total_100_days),
-#                         'cumulative_rate_120_days': np.round(cum_total_100_days/new_sizes)
+                        'cumulative_rate_peak': cum_at_peak_rate,         
+                        'active_rate_after_peak': active_rate_after,
+                        'cumulative_after_peak': cum_after,
+                        'cumulative_rate_after_peak': cum_rate_after,
+                        'cumulative_infected_120_days': np.round(cum_total_100_days),
+                        'cumulative_rate_120_days': np.round(cum_total_100_days/new_sizes, 2)
                      })
     df['model_name'] = name
     active_df = I[columns].add_prefix('active_')
