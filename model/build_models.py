@@ -199,10 +199,10 @@ def build_model(group_size_data, TIME, contact_matrix1, contact_matrix2,
             prison_infection["White"].append(prison_infection["White"][-1])
             prison_infection["Black"].append(prison_infection["Black"][-1])
 
-        S_t[white_prison_i] = Group_Size[white_prison_i] - sum(prison_infection["White"])/10
-        S_t[black_prison_i] = Group_Size[black_prison_i] - sum(prison_infection["Black"])/10
-        I_t[white_prison_i] = sum(prison_infection["White"])/10
-        I_t[black_prison_i] = sum(prison_infection["Black"])/10
+        S_t[white_prison_i] = Group_Size[white_prison_i] - sum(prison_infection["White"])
+        S_t[black_prison_i] = Group_Size[black_prison_i] - sum(prison_infection["Black"])
+        I_t[white_prison_i] = sum(prison_infection["White"])
+        I_t[black_prison_i] = sum(prison_infection["Black"])
 
        
         susceptible_rows.append(S_t)

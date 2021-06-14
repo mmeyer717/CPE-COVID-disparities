@@ -212,10 +212,10 @@ def make_susceptable_plot_racial_dif(s_maps, group_sizes, suptitle, policies = [
     fig, ax  = plt.subplots(1,1, figsize = (10, 5 * n_policies))
     no_policy = s_maps['no_policy']
     p = group_sizes.loc['no_policy']
-    no_policy['all_blacks'] = no_policy['Black'] + no_policy['Black_Forced_Labour']
-    no_policy['all_whites'] = no_policy['White'] + no_policy['White_Forced_Labour']
-    p['all_whites'] = p['White'] + p['White_Forced_Labour']
-    p['all_blacks'] = p['Black'] + p['Black_Forced_Labour']
+#     no_policy['all_blacks'] = no_policy['Black'] + no_policy['Black_Forced_Labour']
+#     no_policy['all_whites'] = no_policy['White'] + no_policy['White_Forced_Labour']
+#     p['all_whites'] = p['White'] + p['White_Forced_Labour']
+#     p['all_blacks'] = p['Black'] + p['Black_Forced_Labour']
    
 
     for i in range(0, n_policies):
@@ -223,13 +223,13 @@ def make_susceptable_plot_racial_dif(s_maps, group_sizes, suptitle, policies = [
         policy_df = s_maps[policy_name].iloc[0:120]
         df = policy_df[policy_df['model_name'] == 'original']
         p = group_sizes.loc[policy_name]
-        df['all_blacks'] = df['Black'] + df['Black_Forced_Labour']
-        df['all_whites'] = df['White'] + df['White_Forced_Labour']
-        p['all_whites'] = p['White'] + p['White_Forced_Labour']
-        p['all_blacks'] = p['Black'] + p['Black_Forced_Labour']
+#         df['all_blacks'] = df['Black'] + df['Black_Forced_Labour']
+#         df['all_whites'] = df['White'] + df['White_Forced_Labour']
+#         p['all_whites'] = p['White'] + p['White_Forced_Labour']
+#         p['all_blacks'] = p['Black'] + p['Black_Forced_Labour']
 
         color = policy_colors[policy_name]
-        race_diff = 1 - (df['all_blacks']/p['all_blacks']) - (1 - df['all_whites']/p['all_whites'])
+        race_diff =  (1- (df['Black_All']/p['Black_All'])) - (1 - df['White_All']/p['White_All'])
         ax.plot(df['Day'].values, race_diff , color, alpha=0.85, lw=3, label = policy_name)
         ax.set_title(f'Black - White Cumulative Cases (Policy Lever: {policy_name})')
         ax.set_ylabel('Difference in cumulative infection rate by race')

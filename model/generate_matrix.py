@@ -327,12 +327,12 @@ def fill_in_prison_contacts(m, my_group_df, is_post=False):
     if not is_post:
         # this is (likelihood that someone in your community was released from prison today) * (number of people you contact) * 10 because we care about anyone realsed in the last ten days. 
         # In the model itself, we use the average infection rate of the last ten days. 
-        white_prison = white_release_rate_delay * no_social_distancing_contact_rate * DAYS_OF_INFECTION
+        white_prison = white_release_rate_delay * no_social_distancing_contact_rate * DAYS_OF_INFECTION * 10 
 
-        black_prison = black_release_rate_delay * no_social_distancing_contact_rate * DAYS_OF_INFECTION
+        black_prison = black_release_rate_delay * no_social_distancing_contact_rate * DAYS_OF_INFECTION * 10
     else:
-        white_prison = white_release_rate_delay * social_distancing_contact_rate * DAYS_OF_INFECTION
-        black_prison = black_release_rate_delay * social_distancing_contact_rate * DAYS_OF_INFECTION
+        white_prison = white_release_rate_delay * social_distancing_contact_rate * DAYS_OF_INFECTION * 10
+        black_prison = black_release_rate_delay * social_distancing_contact_rate * DAYS_OF_INFECTION * 10
 
     for i in my_group_df.index.values:
         if my_group_df.loc[i, 'Location'] == 'At_Home':
